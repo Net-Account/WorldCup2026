@@ -2,7 +2,6 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <!-- این خط برای دور زدن محدودیت‌های Hotlink Protection سرورهای استریم حیاتی است -->
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>World Cup 2026 - Channel Selector</title>
@@ -117,7 +116,6 @@
         }
         video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; object-fit: contain; cursor: pointer; }
         
-        /* دکمه پلی بزرگ */
         .big-play-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80px; height: 80px; background: rgba(255,255,255,0.2);
@@ -128,7 +126,6 @@
         .big-play-btn.hidden { opacity: 0; pointer-events: none; }
         .big-play-btn svg { width: 36px; height: 36px; fill: #fff; }
 
-        /* لایه ارور جدید */
         .error-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none; flex-direction: column;
@@ -248,7 +245,6 @@
         <div class="player-card">
             <video id="video" playsinline></video>
             
-            <!-- لایه ارور -->
             <div class="error-overlay" id="errorOverlay">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                 <p id="errorMsg">Stream is offline or unavailable.</p>
@@ -290,15 +286,18 @@
 
     <script>
         const streams = [
-            { name: "🇺🇸 FOX",       url: "https://streamxyz.shop/FOX/index.m3u8" },
-            { name: "🇺🇸 FOX 4K",    url: "https://streamxyz.shop/fox4k/index.m3u8" },
-            { name: "🇬🇧 ITV",       url: "https://streamxyz.shop/ITV/index.m3u8" },
-            { name: "🇨🇦 TSN",       url: "https://streamxyz.shop/tsn1/index.m3u8" },
-            { name: "🇨🇦 TSN 4K",    url: "https://streamxyz.shop/tsn4k/index.m3u8" },
-            { name: "⚽ beIN Max",   url: "https://streamxyz.shop/bein/index.m3u8" },
-            { name: "⚽ beIN 4K",    url: "https://streamxyz.shop/bein4k/index.m3u8" },
-            { name: "🇺🇸 Telemundo", url: "https://streamxyz.shop/Telemundo/index.m3u8" },
-            { name: "🇺🇸 Tele 4K",   url: "https://streamxyz.shop/tele4k/index.m3u8" }
+            { 
+                name: "📺 FS1 HD", 
+                url: "https://corsproxy.io/?http://190.11.225.124:5000/live/fs1_hd/playlist.m3u8" 
+            },
+            { 
+                name: "🏀 Test Stream (Mux)", 
+                url: "https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8" 
+            },
+            { 
+                name: "🐰 Big Buck Bunny", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" 
+            }
         ];
 
         let currentStreamIndex = 0;
@@ -371,7 +370,6 @@
                     spinnerOverlay.classList.remove('active');
                     populateQualityLevels(hls);
                     
-                    // تلاش برای پخش
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
                         playPromise.then(() => {
@@ -379,7 +377,6 @@
                             updatePlayButton();
                         }).catch(error => {
                             console.log("Autoplay blocked:", error);
-                            // اگر پخش خودکار بلاک شد، دکمه پلی بزرگ را نشان بده
                             bigPlayBtn.classList.remove('hidden');
                             updatePlayButton();
                         });
@@ -397,7 +394,6 @@
                             showError("Connection failed. Check internet or CORS settings.");
                         } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
                             showError("Media format error. Trying to recover...");
-                            // تلاش برای ریکاوری
                             if (hls) hls.recoverMediaError();
                         } else {
                             showError("Stream is offline or unsupported.");
@@ -468,14 +464,13 @@
                 progressFill.style.width = pct + '%';
                 timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
             } else {
-                // برای لایو استریم
                 progressFill.style.width = '100%'; 
                 timeDisplay.textContent = 'LIVE';
             }
         });
 
         progressBar.addEventListener('click', (e) => {
-            if (!isFinite(video.duration)) return; // در لایو نمی‌شود.seek کرد
+            if (!isFinite(video.duration)) return;
             const rect = progressBar.getBoundingClientRect();
             const pct = (e.clientX - rect.left) / rect.width;
             video.currentTime = pct * video.duration;
@@ -534,7 +529,6 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
-        // شروع
         loadChannel(0);
     </script>
 </body>
