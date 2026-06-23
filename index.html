@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پخش‌کننده زنده M3U8</title>
-    <!-- فونت زیبا -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&display=swap" rel="stylesheet">
-    <!-- کتابخانه hls.js -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root {
@@ -31,7 +29,6 @@
             flex-direction: column;
             overflow-x: hidden;
         }
-        /* ========== HEADER ========== */
         .header {
             background: linear-gradient(135deg, var(--navy), #0f1123);
             padding: 15px 25px;
@@ -62,8 +59,6 @@
             box-shadow: 0 4px 15px rgba(255,107,157,0.3);
         }
         .add-stream-btn:hover { background: #ff7da6; transform: translateY(-2px); }
-
-        /* ========== LAYOUT ========== */
         .main-container {
             display: flex;
             flex: 1;
@@ -117,8 +112,6 @@
             transition: var(--transition);
         }
         .stream-item .delete-btn:hover { color: var(--pink); }
-
-        /* ========== PLAYER ========== */
         .player-wrapper {
             background: var(--surface);
             border-radius: var(--radius);
@@ -146,8 +139,6 @@
         }
         .spinner.active { display: block; }
         @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* کنترل‌های پخش سفارشی */
         .controls {
             display: flex;
             align-items: center;
@@ -191,8 +182,6 @@
             width: 80px;
             accent-color: var(--pink);
         }
-
-        /* ========== MODAL ========== */
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.7);
@@ -238,7 +227,6 @@
         }
         .save-btn { background: var(--pink); color: #fff; }
         .cancel-btn { background: transparent; border: 1px solid var(--navy); color: var(--text-dim); }
-
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .playlist-section { max-height: 300px; }
@@ -246,15 +234,12 @@
     </style>
 </head>
 <body>
-    <!-- هدر -->
     <header class="header">
         <h1>✨ پخش‌کننده زنده</h1>
         <button class="add-stream-btn" onclick="openModal()">➕ افزودن پخش</button>
     </header>
 
-    <!-- محتوای اصلی -->
     <div class="main-container">
-        <!-- بخش پلیر -->
         <div class="player-section">
             <div class="player-wrapper">
                 <video id="video" controlsList="nodownload" playsinline></video>
@@ -272,19 +257,17 @@
             </div>
         </div>
 
-        <!-- لیست پخش -->
         <div class="playlist-section" id="playlist">
             <h2>📋 کانال‌های من</h2>
             <div id="streamList"></div>
         </div>
     </div>
 
-    <!-- مودال افزودن پخش -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h3>افزودن پخش جدید</h3>
             <input type="text" id="streamName" placeholder="نام کانال (مثلاً شبکه ورزش)">
-            <input type="text" id="streamUrl" placeholder="https://list.iptvcat.com/my_list/s/f10e206fe1b2b0822c22fec6d83dcb87.m3u8">
+            <input type="text" id="streamUrl" placeholder="آدرس m3u8">
             <div class="modal-btns">
                 <button class="cancel-btn" onclick="closeModal()">لغو</button>
                 <button class="save-btn" onclick="addStream()">افزودن</button>
@@ -293,8 +276,18 @@
     </div>
 
     <script>
-        // ذخیره و بازیابی از localStorage
-        let streams = JSON.parse(localStorage.getItem('m3u8_streams')) || [];
+        // سه شبکه ورزشی پیش‌فرض که کلید DRM نمی‌خواهند
+        const defaultStreams = [
+            { name: "TSN SPORTS HD", url: "https://soccerball.st/s1.php" },
+            { name: "FOX SPORTS HD", url: "https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8" },
+            { name: "Binge+", url: "https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8" }
+        ];
+
+        let streams = JSON.parse(localStorage.getItem('m3u8_streams'));
+        if (!streams || streams.length === 0) {
+            streams = defaultStreams;
+            localStorage.setItem('m3u8_streams', JSON.stringify(streams));
+        }
 
         const video = document.getElementById('video');
         const spinner = document.getElementById('spinner');
@@ -310,14 +303,11 @@
         let hls = null;
         let currentStreamIndex = -1;
 
-        // بارگذاری اولیه لیست
         renderStreams();
 
-        // اگر لیست خالی بود، یک نمونه پیش‌فرض اضافه کن
-        if (streams.length === 0) {
-            streams.push({ name: "نمونه - Big Buck Bunny", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" });
-            localStorage.setItem('m3u8_streams', JSON.stringify(streams));
-            renderStreams();
+        // پخش اولین کانال در صورت وجود
+        if (streams.length > 0 && currentStreamIndex === -1) {
+            playStream(0);
         }
 
         function renderStreams() {
@@ -402,7 +392,6 @@
             spinner.classList.toggle('active', show);
         }
 
-        // کنترل‌ها
         function updatePlayButton() {
             playPauseBtn.textContent = video.paused ? '▶️' : '⏸️';
         }
@@ -458,7 +447,6 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
-        // مودال
         const modalOverlay = document.getElementById('modalOverlay');
         function openModal() {
             modalOverlay.classList.add('show');
@@ -483,13 +471,7 @@
             localStorage.setItem('m3u8_streams', JSON.stringify(streams));
             renderStreams();
             closeModal();
-            // پخش آخرین مورد اضافه‌شده
             playStream(streams.length - 1);
-        }
-
-        // پخش اولین آیتم در صورت وجود
-        if (streams.length > 0 && currentStreamIndex === -1) {
-            playStream(0);
         }
     </script>
 </body>
