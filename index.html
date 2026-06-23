@@ -19,70 +19,41 @@
             justify-content: center;
             padding: 20px;
         }
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 25px; }
         .header { text-align: center; }
         .header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.2rem; font-weight: 700;
             background: linear-gradient(to right, #c471ed, #f7797d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
         }
         .header p { color: #aaa; font-size: 0.9rem; }
         .player-card {
-            background: rgba(10, 10, 15, 0.9);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            position: relative;
+            background: rgba(10, 10, 15, 0.9); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 28px;
+            overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative;
         }
-        video {
-            width: 100%;
-            display: block;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            object-fit: contain;
-        }
+        video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; object-fit: contain; }
         .poster {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.9);
-            color: #aaa;
-            font-size: 1.2rem;
-            z-index: 5;
-            pointer-events: none; /* تا کلیک‌های روی ویدیو کار کنند */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.9); color: #aaa; font-size: 1.2rem; z-index: 5;
+            pointer-events: none;
         }
         .poster.hide { display: none; }
         .controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
+            display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
         }
-        .controls button {
-            background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; transition: 0.2s;
-        }
+        .controls button { background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; transition: 0.2s; }
         .controls button:hover { color: #f7797d; }
         .progress-bar {
-            flex: 1; height: 5px; background: rgba(255,255,255,0.15); border-radius: 5px; cursor: pointer; position: relative; overflow: hidden;
+            flex: 1; height: 5px; background: rgba(255,255,255,0.15); border-radius: 5px;
+            cursor: pointer; position: relative; overflow: hidden;
         }
         .progress-fill {
-            height: 100%; background: linear-gradient(90deg, #c471ed, #f7797d); border-radius: 5px; transition: width 0.1s linear;
+            height: 100%; background: linear-gradient(90deg, #c471ed, #f7797d);
+            border-radius: 5px; transition: width 0.1s linear;
         }
         .time { font-size: 0.8rem; color: #ddd; white-space: nowrap; }
         .volume-slider { width: 70px; accent-color: #c471ed; }
@@ -94,10 +65,10 @@
             display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 150px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .channel-card:hover { transform: translateY(-5px); border-color: #c471ed; box-shadow: 0 15px 30px rgba(196, 113, 237, 0.25); }
+        .channel-card:hover { transform: translateY(-5px); border-color: #c471ed; box-shadow: 0 15px 30px rgba(196,113,237,0.25); }
         .channel-card.active {
-            background: linear-gradient(135deg, #c471ed, #f7797d); border-color: transparent; color: #fff; font-weight: 700;
-            box-shadow: 0 10px 25px rgba(247, 121, 125, 0.5);
+            background: linear-gradient(135deg, #c471ed, #f7797d); border-color: transparent;
+            color: #fff; font-weight: 700; box-shadow: 0 10px 25px rgba(247,121,125,0.5);
         }
         .channel-icon { font-size: 2rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
         .channel-name { font-size: 0.95rem; font-weight: 500; text-align: center; }
@@ -127,15 +98,10 @@
         </div>
         <div class="player-card">
             <video id="video" playsinline></video>
-            <!-- لایه پیام انتخاب کانال -->
-            <div class="poster" id="poster">
-                <span>📺 برای شروع، یک شبکه را انتخاب کنید</span>
-            </div>
+            <div class="poster" id="poster"><span>📺 برای شروع، یک شبکه را انتخاب کنید</span></div>
             <div class="controls">
                 <button id="playPauseBtn" title="پخش / توقف">▶️</button>
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
-                </div>
+                <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
                 <span class="time" id="timeDisplay">00:00 / 00:00</span>
                 <button id="muteBtn" title="قطع صدا">🔊</button>
                 <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
@@ -143,28 +109,21 @@
             </div>
         </div>
         <div class="channel-selector" id="channelSelector">
-            <div class="channel-card" data-index="0">
-                <span class="channel-icon">🏈</span>
-                <span class="channel-name">TSN SPORTS HD</span>
-            </div>
-            <div class="channel-card" data-index="1">
-                <span class="channel-icon">⚽</span>
-                <span class="channel-name">FOX SPORTS HD</span>
-            </div>
-            <div class="channel-card" data-index="2">
-                <span class="channel-icon">🎬</span>
-                <span class="channel-name">Binge+</span>
-            </div>
+            <div class="channel-card" data-index="0"><span class="channel-icon">🏈</span><span class="channel-name">TSN SPORTS HD</span></div>
+            <div class="channel-card" data-index="1"><span class="channel-icon">⚽</span><span class="channel-name">FOX SPORTS HD</span></div>
+            <div class="channel-card" data-index="2"><span class="channel-icon">🎬</span><span class="channel-name">Binge+</span></div>
         </div>
     </div>
     <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <script>
+        // ★ پروکسی رایگان CORS ★
         const CORS_PROXY = 'https://corsproxy.io/?url=';
+
         const channels = [
             { name: 'TSN SPORTS HD', url: CORS_PROXY + encodeURIComponent('https://soccerball.st/s1.php') },
             { name: 'FOX SPORTS HD', url: CORS_PROXY + encodeURIComponent('https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8') },
-            { name: 'Binge+', url: CORS_PROXY + encodeURIComponent('https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8') }
+            { name: 'Binge+',      url: CORS_PROXY + encodeURIComponent('https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8') }
         ];
 
         const video = document.getElementById('video');
@@ -188,7 +147,6 @@
             video.src = '';
             video.removeAttribute('src');
 
-            // مخفی کردن poster
             poster.classList.add('hide');
             spinnerOverlay.classList.add('active');
             currentIndex = index;
@@ -215,7 +173,7 @@
             } else {
                 alert('مرورگر شما از پخش HLS پشتیبانی نمی‌کند.');
                 spinnerOverlay.classList.remove('active');
-                poster.classList.remove('hide'); // اگر خطا خورد، poster را برگردان
+                poster.classList.remove('hide');
             }
         }
 
@@ -281,9 +239,6 @@
                 playChannel(index);
             });
         });
-
-        // هیچ پخش خودکاری انجام نمی‌شود
-        // poster به صورت پیش‌فرض نمایش داده می‌شود
     </script>
 </body>
 </html>
