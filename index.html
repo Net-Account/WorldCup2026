@@ -3,150 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پخش‌کننده زنده M3U8</title>
+    <title>پخش زنده ۳ شبکه ورزشی</title>
+    <!-- فونت زیبای وزیرمتن (ساخته شده توسط صابر راستی‌کردار – رایگان و حرفه‌ای) -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        :root {
-            --bg: #0b0c1a;
-            --surface: #14152b;
-            --navy: #1f2a5e;
-            --pink: #ff6b9d;
-            --pink-light: #ffa7c4;
-            --text: #f0f0f5;
-            --text-dim: #9090aa;
-            --radius: 20px;
-            --shadow: 0 10px 30px rgba(0,0,0,0.5);
-            --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: radial-gradient(circle at top, #1a1025 0%, #0a0a0f 80%);
+            color: #fff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, var(--navy), #0f1123);
-            padding: 15px 25px;
-            display: flex;
             align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 10;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        /* Header */
+        .header {
+            text-align: center;
         }
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            background: linear-gradient(to left, var(--pink), var(--pink-light));
+            background: linear-gradient(to right, #c471ed, #f7797d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
         }
-        .add-stream-btn {
-            background: var(--pink);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-family: inherit;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(255,107,157,0.3);
+        .header p {
+            color: #aaa;
+            font-size: 0.9rem;
         }
-        .add-stream-btn:hover { background: #ff7da6; transform: translateY(-2px); }
-        .main-container {
-            display: flex;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-        }
-        .player-section {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .playlist-section {
-            flex: 1;
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-        }
-        .playlist-section h2 {
-            font-size: 1.3rem;
-            font-weight: 500;
-            color: var(--pink-light);
-            border-bottom: 1px solid var(--navy);
-            padding-bottom: 10px;
-        }
-        .stream-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.03);
-            padding: 12px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-        }
-        .stream-item:hover { background: rgba(255,107,157,0.1); border-color: var(--pink); }
-        .stream-item.active { background: var(--pink); color: #fff; font-weight: 500; }
-        .stream-item .delete-btn {
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: var(--transition);
-        }
-        .stream-item .delete-btn:hover { color: var(--pink); }
-        .player-wrapper {
-            background: var(--surface);
-            border-radius: var(--radius);
+
+        /* Player card */
+        .player-card {
+            background: rgba(20, 15, 30, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 28px;
             overflow: hidden;
-            box-shadow: var(--shadow);
-            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
         video {
             width: 100%;
             display: block;
+            aspect-ratio: 16 / 9;
             background: #000;
-            aspect-ratio: 16/9;
             object-fit: contain;
         }
-        .spinner {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px; height: 50px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-top: 4px solid var(--pink);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-        .spinner.active { display: block; }
-        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
         .controls {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 0 0 var(--radius) var(--radius);
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(8px);
         }
         .controls button {
             background: none;
@@ -154,36 +74,83 @@
             color: #fff;
             font-size: 1.3rem;
             cursor: pointer;
-            transition: var(--transition);
-            padding: 5px;
+            transition: 0.2s;
         }
-        .controls button:hover { color: var(--pink); }
-        .progress-container {
+        .controls button:hover { color: #f7797d; }
+        .progress-bar {
             flex: 1;
-            height: 6px;
+            height: 5px;
             background: rgba(255,255,255,0.15);
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--pink), var(--pink-light));
-            border-radius: 3px;
+            background: linear-gradient(90deg, #c471ed, #f7797d);
+            border-radius: 5px;
             transition: width 0.1s linear;
         }
         .time {
-            font-size: 13px;
-            color: #fff;
+            font-size: 0.8rem;
+            color: #ddd;
             white-space: nowrap;
         }
         .volume-slider {
-            width: 80px;
-            accent-color: var(--pink);
+            width: 70px;
+            accent-color: #c471ed;
         }
-        .modal-overlay {
-            position: fixed; inset: 0;
+
+        /* Channel selector */
+        .channel-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .channel-card {
+            background: rgba(25, 20, 35, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 150px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .channel-card:hover {
+            transform: translateY(-5px);
+            border-color: #c471ed;
+            box-shadow: 0 15px 30px rgba(196, 113, 237, 0.25);
+        }
+        .channel-card.active {
+            background: linear-gradient(135deg, #c471ed, #f7797d);
+            border-color: transparent;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(247, 121, 125, 0.5);
+        }
+        .channel-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+        .channel-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
             backdrop-filter: blur(5px);
             display: none;
@@ -191,177 +158,110 @@
             justify-content: center;
             z-index: 100;
         }
-        .modal-overlay.show { display: flex; }
-        .modal {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 25px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: var(--shadow);
+        .spinner-overlay.active { display: flex; }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid #f7797d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .modal h3 { color: var(--pink-light); margin-bottom: 20px; }
-        .modal input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--navy);
-            border-radius: 10px;
-            color: #fff;
-            font-family: inherit;
-            outline: none;
-        }
-        .modal input:focus { border-color: var(--pink); }
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        .modal-btns button {
-            padding: 10px 20px;
-            border-radius: 30px;
-            border: none;
-            font-family: inherit;
-            cursor: pointer;
-        }
-        .save-btn { background: var(--pink); color: #fff; }
-        .cancel-btn { background: transparent; border: 1px solid var(--navy); color: var(--text-dim); }
-        @media (max-width: 768px) {
-            .main-container { flex-direction: column; }
-            .playlist-section { max-height: 300px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .channel-selector { gap: 10px; }
+            .channel-card { padding: 15px 20px; min-width: 120px; }
+            .header h1 { font-size: 1.6rem; }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1>✨ پخش‌کننده زنده</h1>
-        <button class="add-stream-btn" onclick="openModal()">➕ افزودن پخش</button>
-    </header>
+    <div class="container">
+        <div class="header">
+            <h1>📡 پخش زنده ورزشی</h1>
+            <p>TSN SPORTS · FOX SPORTS · Binge+</p>
+        </div>
 
-    <div class="main-container">
-        <div class="player-section">
-            <div class="player-wrapper">
-                <video id="video" controlsList="nodownload" playsinline></video>
-                <div class="spinner" id="spinner"></div>
-                <div class="controls">
-                    <button id="playPauseBtn">▶️</button>
-                    <button id="muteBtn">🔊</button>
-                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
-                    <div class="progress-container" id="progressContainer">
-                        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-                    </div>
-                    <span class="time" id="timeDisplay">00:00 / 00:00</span>
-                    <button id="fullscreenBtn">⛶</button>
+        <!-- Player -->
+        <div class="player-card">
+            <video id="video" playsinline></video>
+            <div class="controls">
+                <button id="playPauseBtn" title="پخش / توقف">▶️</button>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
                 </div>
+                <span class="time" id="timeDisplay">00:00 / 00:00</span>
+                <button id="muteBtn" title="قطع صدا">🔊</button>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+                <button id="fullscreenBtn" title="تمام‌صفحه">⛶</button>
             </div>
         </div>
 
-        <div class="playlist-section" id="playlist">
-            <h2>📋 کانال‌های من</h2>
-            <div id="streamList"></div>
+        <!-- Channel cards -->
+        <div class="channel-selector" id="channelSelector">
+            <div class="channel-card" data-index="0">
+                <span class="channel-icon">🏈</span>
+                <span class="channel-name">TSN SPORTS HD</span>
+            </div>
+            <div class="channel-card" data-index="1">
+                <span class="channel-icon">⚽</span>
+                <span class="channel-name">FOX SPORTS HD</span>
+            </div>
+            <div class="channel-card" data-index="2">
+                <span class="channel-icon">🎬</span>
+                <span class="channel-name">Binge+</span>
+            </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <h3>افزودن پخش جدید</h3>
-            <input type="text" id="streamName" placeholder="نام کانال (مثلاً شبکه ورزش)">
-            <input type="text" id="streamUrl" placeholder="آدرس m3u8">
-            <div class="modal-btns">
-                <button class="cancel-btn" onclick="closeModal()">لغو</button>
-                <button class="save-btn" onclick="addStream()">افزودن</button>
-            </div>
-        </div>
+    <!-- Spinner -->
+    <div class="spinner-overlay" id="spinnerOverlay">
+        <div class="spinner"></div>
     </div>
 
     <script>
-        // سه شبکه ورزشی پیش‌فرض که کلید DRM نمی‌خواهند
-        const defaultStreams = [
-            { name: "TSN SPORTS HD", url: "https://soccerball.st/s1.php" },
-            { name: "FOX SPORTS HD", url: "https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8" },
-            { name: "Binge+", url: "https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8" }
+        // لیست ۳ شبکه
+        const channels = [
+            { name: 'TSN SPORTS HD', url: 'https://soccerball.st/s1.php' },
+            { name: 'FOX SPORTS HD', url: 'https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8' },
+            { name: 'Binge+', url: 'https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8' }
         ];
 
-        let streams = JSON.parse(localStorage.getItem('m3u8_streams'));
-        if (!streams || streams.length === 0) {
-            streams = defaultStreams;
-            localStorage.setItem('m3u8_streams', JSON.stringify(streams));
-        }
-
         const video = document.getElementById('video');
-        const spinner = document.getElementById('spinner');
+        const spinnerOverlay = document.getElementById('spinnerOverlay');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const muteBtn = document.getElementById('muteBtn');
         const volumeSlider = document.getElementById('volumeSlider');
-        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const timeDisplay = document.getElementById('timeDisplay');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const streamListDiv = document.getElementById('streamList');
+        const channelCards = document.querySelectorAll('.channel-card');
 
         let hls = null;
-        let currentStreamIndex = -1;
+        let currentIndex = -1;
 
-        renderStreams();
-
-        // پخش اولین کانال در صورت وجود
-        if (streams.length > 0 && currentStreamIndex === -1) {
-            playStream(0);
-        }
-
-        function renderStreams() {
-            streamListDiv.innerHTML = '';
-            streams.forEach((stream, index) => {
-                const div = document.createElement('div');
-                div.className = 'stream-item';
-                if (index === currentStreamIndex) div.classList.add('active');
-                div.innerHTML = `
-                    <span>${stream.name}</span>
-                    <button class="delete-btn" data-index="${index}">&times;</button>
-                `;
-                div.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-btn')) {
-                        e.stopPropagation();
-                        deleteStream(index);
-                    } else {
-                        playStream(index);
-                    }
-                });
-                streamListDiv.appendChild(div);
-            });
-        }
-
-        function deleteStream(index) {
-            if (confirm('آیا از حذف این پخش مطمئن هستید؟')) {
-                streams.splice(index, 1);
-                localStorage.setItem('m3u8_streams', JSON.stringify(streams));
-                if (index === currentStreamIndex) {
-                    destroyPlayer();
-                    currentStreamIndex = -1;
-                    video.poster = '';
-                } else if (currentStreamIndex > index) {
-                    currentStreamIndex--;
-                }
-                renderStreams();
+        // تابع پخش یک کانال
+        function playChannel(index) {
+            if (index === currentIndex) return;
+            if (hls) {
+                hls.destroy();
+                hls = null;
             }
-        }
+            video.src = '';
+            video.removeAttribute('src');
 
-        function playStream(index) {
-            if (index === currentStreamIndex) return;
-            const stream = streams[index];
-            if (!stream) return;
-            destroyPlayer();
-            showSpinner(true);
-            currentStreamIndex = index;
-            renderStreams();
+            spinnerOverlay.classList.add('active');
+            currentIndex = index;
+            updateActiveCard();
 
+            const stream = channels[index];
             if (Hls.isSupported()) {
                 const hlsInstance = new Hls();
                 hlsInstance.loadSource(stream.url);
                 hlsInstance.attachMedia(video);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                    showSpinner(false);
+                    spinnerOverlay.classList.remove('active');
                     video.play().catch(() => {});
                     updatePlayButton();
                 });
@@ -369,37 +269,29 @@
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = stream.url;
                 video.addEventListener('loadedmetadata', () => {
-                    showSpinner(false);
+                    spinnerOverlay.classList.remove('active');
                     video.play().catch(() => {});
                     updatePlayButton();
                 }, { once: true });
             } else {
                 alert('مرورگر شما از پخش HLS پشتیبانی نمی‌کند.');
-                showSpinner(false);
+                spinnerOverlay.classList.remove('active');
             }
         }
 
-        function destroyPlayer() {
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
-            video.src = '';
-            video.removeAttribute('src');
+        function updateActiveCard() {
+            channelCards.forEach((card, idx) => {
+                card.classList.toggle('active', idx === currentIndex);
+            });
         }
 
-        function showSpinner(show) {
-            spinner.classList.toggle('active', show);
-        }
-
+        // کنترل‌ها
         function updatePlayButton() {
             playPauseBtn.textContent = video.paused ? '▶️' : '⏸️';
         }
         video.addEventListener('play', updatePlayButton);
         video.addEventListener('pause', updatePlayButton);
-        video.addEventListener('ended', () => {
-            playPauseBtn.textContent = '▶️';
-        });
+        video.addEventListener('ended', () => playPauseBtn.textContent = '▶️');
 
         video.addEventListener('timeupdate', () => {
             if (video.duration) {
@@ -409,15 +301,14 @@
             }
         });
 
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
             const pct = (e.clientX - rect.left) / rect.width;
             video.currentTime = pct * video.duration;
         });
 
         playPauseBtn.addEventListener('click', () => {
-            if (video.paused) video.play();
-            else video.pause();
+            video.paused ? video.play() : video.pause();
         });
 
         muteBtn.addEventListener('click', () => {
@@ -436,7 +327,7 @@
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else {
-                document.querySelector('.player-wrapper').requestFullscreen();
+                document.querySelector('.player-card').requestFullscreen();
             }
         });
 
@@ -447,32 +338,16 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
-        const modalOverlay = document.getElementById('modalOverlay');
-        function openModal() {
-            modalOverlay.classList.add('show');
-            document.getElementById('streamName').value = '';
-            document.getElementById('streamUrl').value = '';
-        }
-        function closeModal() {
-            modalOverlay.classList.remove('show');
-        }
-        window.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
+        // کلیک روی کارت‌ها
+        channelCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const index = parseInt(card.getAttribute('data-index'));
+                playChannel(index);
+            });
         });
 
-        function addStream() {
-            const name = document.getElementById('streamName').value.trim();
-            const url = document.getElementById('streamUrl').value.trim();
-            if (!name || !url) {
-                alert('لطفاً نام و آدرس پخش را وارد کنید.');
-                return;
-            }
-            streams.push({ name, url });
-            localStorage.setItem('m3u8_streams', JSON.stringify(streams));
-            renderStreams();
-            closeModal();
-            playStream(streams.length - 1);
-        }
+        // پیش‌فرض: پخش اولین شبکه
+        playChannel(0);
     </script>
 </body>
 </html>
