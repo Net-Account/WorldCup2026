@@ -2,6 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
+    <!-- این خط برای دور زدن محدودیت‌های Hotlink Protection سرورهای استریم حیاتی است -->
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>World Cup 2026 - Channel Selector</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&display=swap" rel="stylesheet">
@@ -114,6 +116,8 @@
             position: relative;
         }
         video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; object-fit: contain; cursor: pointer; }
+        
+        /* دکمه پلی بزرگ */
         .big-play-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80px; height: 80px; background: rgba(255,255,255,0.2);
@@ -123,6 +127,23 @@
         }
         .big-play-btn.hidden { opacity: 0; pointer-events: none; }
         .big-play-btn svg { width: 36px; height: 36px; fill: #fff; }
+
+        /* لایه ارور جدید */
+        .error-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10; color: #fff;
+            text-align: center; padding: 20px;
+        }
+        .error-overlay.active { display: flex; }
+        .error-overlay svg { width: 48px; height: 48px; fill: #ff4d4d; margin-bottom: 10px; }
+        .error-overlay p { margin-bottom: 15px; font-size: 0.9rem; color: #ccc; }
+        .error-overlay button {
+            background: linear-gradient(135deg, #c471ed, #f7797d); border: none; color: #fff; 
+            padding: 10px 25px; border-radius: 20px; cursor: pointer; font-family: inherit; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(247,121,125,0.4);
+        }
+
         .controls {
             display: flex; align-items: center; gap: 12px; padding: 12px 20px;
             background: rgba(0,0,0,0.8);
@@ -214,18 +235,26 @@
             <div class="header-top">
                 <a href="https://t.me/NetAccount" target="_blank" class="telegram-btn" title="Telegram Channel">
                     <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
-                    Telegram Channel
+                    Telegram
                 </a>
                 <div class="lion-sun">
                     <img src="https://i.ibb.co/xSc82hzp/Lion-and-Sun-svg.png" alt="Lion and Sun">
                 </div>
-                <button class="copy-link-btn" id="copyLinkBtn" title="Copy Link">🔗 Copy Link</button>
+                <button class="copy-link-btn" id="copyLinkBtn" title="Copy Link">🔗 Copy</button>
             </div>
             <h1>World Cup 2026 <span class="live-text">Live</span></h1>
         </div>
 
         <div class="player-card">
             <video id="video" playsinline></video>
+            
+            <!-- لایه ارور -->
+            <div class="error-overlay" id="errorOverlay">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                <p id="errorMsg">Stream is offline or unavailable.</p>
+                <button onclick="retryStream()">Retry Connection</button>
+            </div>
+
             <div class="big-play-btn" id="bigPlayBtn">
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
@@ -246,7 +275,7 @@
                 <select class="quality-selector" id="qualitySelector">
                     <option value="-1">Auto</option>
                 </select>
-                <button id="pipBtn" title="تصویر در تصویر">
+                <button id="pipBtn" title="PiP">
                     <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
                 </button>
                 <button id="fullscreenBtn" title="Fullscreen">
@@ -260,7 +289,6 @@
     <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <script>
-        // لیست کانال‌ها
         const streams = [
             { name: "🇺🇸 FOX",       url: "https://streamxyz.shop/FOX/index.m3u8" },
             { name: "🇺🇸 FOX 4K",    url: "https://streamxyz.shop/fox4k/index.m3u8" },
@@ -275,10 +303,11 @@
 
         let currentStreamIndex = 0;
         let hls = null;
-        let isPlaying = false;
 
         const video = document.getElementById('video');
         const spinnerOverlay = document.getElementById('spinnerOverlay');
+        const errorOverlay = document.getElementById('errorOverlay');
+        const errorMsg = document.getElementById('errorMsg');
         const bigPlayBtn = document.getElementById('bigPlayBtn');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
@@ -291,7 +320,6 @@
         const qualitySelector = document.getElementById('qualitySelector');
         const channelContainer = document.getElementById('channelButtons');
 
-        // ساخت دکمه‌های کانال
         streams.forEach((stream, idx) => {
             const btn = document.createElement('button');
             btn.className = `channel-btn ${idx === 0 ? 'active' : ''}`;
@@ -302,60 +330,95 @@
 
         const channelButtons = document.querySelectorAll('.channel-btn');
 
+        function showError(msg) {
+            errorMsg.textContent = msg || 'Stream unavailable.';
+            errorOverlay.classList.add('active');
+            spinnerOverlay.classList.remove('active');
+            bigPlayBtn.classList.add('hidden');
+        }
+
+        function hideError() {
+            errorOverlay.classList.remove('active');
+        }
+
+        function retryStream() {
+            loadChannel(currentStreamIndex);
+        }
+
         function loadChannel(index) {
-            if (isPlaying && currentStreamIndex === index) return; // همون کانال
             if (hls) { hls.destroy(); hls = null; }
             video.src = '';
             video.removeAttribute('src');
+            hideError();
 
             currentStreamIndex = index;
             channelButtons.forEach((btn, i) => btn.classList.toggle('active', i === index));
 
             spinnerOverlay.classList.add('active');
-            isPlaying = true;
-
-            video.muted = false;
-            video.volume = volumeSlider.value;
-            updateVolumeUI();
+            bigPlayBtn.classList.add('hidden');
 
             if (Hls.isSupported()) {
                 hls = new Hls({
-                    liveSyncDurationCount: 2,
-                    liveMaxLatencyDurationCount: 8,
-                    startPosition: -1
+                    liveSyncDurationCount: 3,
+                    liveMaxLatencyDurationCount: 10,
+                    enableWorker: true,
                 });
+                
                 hls.loadSource(streams[index].url);
                 hls.attachMedia(video);
 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     spinnerOverlay.classList.remove('active');
-                    video.play().catch(() => {});
-                    updatePlayButton();
-                    bigPlayBtn.classList.add('hidden');
                     populateQualityLevels(hls);
+                    
+                    // تلاش برای پخش
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            bigPlayBtn.classList.add('hidden');
+                            updatePlayButton();
+                        }).catch(error => {
+                            console.log("Autoplay blocked:", error);
+                            // اگر پخش خودکار بلاک شد، دکمه پلی بزرگ را نشان بده
+                            bigPlayBtn.classList.remove('hidden');
+                            updatePlayButton();
+                        });
+                    }
                 });
 
                 hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error('HLS Error:', data);
                     if (data.fatal) {
-                        console.error('HLS fatal error', data);
-                        hls.destroy();
+                        if (hls) hls.destroy();
                         hls = null;
                         spinnerOverlay.classList.remove('active');
-                        isPlaying = false;
+                        
+                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                            showError("Connection failed. Check internet or CORS settings.");
+                        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                            showError("Media format error. Trying to recover...");
+                            // تلاش برای ریکاوری
+                            if (hls) hls.recoverMediaError();
+                        } else {
+                            showError("Stream is offline or unsupported.");
+                        }
                     }
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = streams[index].url;
                 video.addEventListener('loadedmetadata', () => {
                     spinnerOverlay.classList.remove('active');
-                    video.play().catch(() => {});
+                    video.play().catch(() => {
+                        bigPlayBtn.classList.remove('hidden');
+                    });
                     updatePlayButton();
-                    bigPlayBtn.classList.add('hidden');
+                }, { once: true });
+                
+                video.addEventListener('error', () => {
+                    showError("Failed to load native HLS.");
                 }, { once: true });
             } else {
-                alert('مرورگر شما پخش HLS را پشتیبانی نمی‌کند.');
-                spinnerOverlay.classList.remove('active');
-                isPlaying = false;
+                showError("Your browser does not support HLS.");
             }
         }
 
@@ -364,11 +427,10 @@
             if (hlsInstance.levels.length) {
                 for (let i = hlsInstance.levels.length - 1; i >= 0; i--) {
                     const lvl = hlsInstance.levels[i];
-                    const label = lvl.height ? `${lvl.height}p` : `Quality ${i+1}`;
+                    const label = lvl.height ? `${lvl.height}p` : `Level ${i+1}`;
                     qualitySelector.innerHTML += `<option value="${i}">${label}</option>`;
                 }
             }
-            qualitySelector.value = hlsInstance.currentLevel;
         }
 
         qualitySelector.addEventListener('change', () => {
@@ -376,8 +438,12 @@
         });
 
         function togglePlay() {
-            if (!video.src) { loadChannel(currentStreamIndex); return; }
-            video.paused ? video.play() : video.pause();
+            if (!video.src && !hls) { loadChannel(currentStreamIndex); return; }
+            if (video.paused) {
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+            }
             updatePlayButton();
         }
 
@@ -385,7 +451,7 @@
             const paused = video.paused;
             playIcon.style.display = paused ? '' : 'none';
             pauseIcon.style.display = paused ? 'none' : '';
-            bigPlayBtn.classList.toggle('hidden', !paused);
+            if (!paused) bigPlayBtn.classList.add('hidden');
         }
 
         video.addEventListener('play', updatePlayButton);
@@ -397,14 +463,19 @@
         });
 
         video.addEventListener('timeupdate', () => {
-            if (video.duration) {
+            if (video.duration && isFinite(video.duration)) {
                 const pct = (video.currentTime / video.duration) * 100;
                 progressFill.style.width = pct + '%';
                 timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+            } else {
+                // برای لایو استریم
+                progressFill.style.width = '100%'; 
+                timeDisplay.textContent = 'LIVE';
             }
         });
 
         progressBar.addEventListener('click', (e) => {
+            if (!isFinite(video.duration)) return; // در لایو نمی‌شود.seek کرد
             const rect = progressBar.getBoundingClientRect();
             const pct = (e.clientX - rect.left) / rect.width;
             video.currentTime = pct * video.duration;
@@ -451,8 +522,9 @@
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 const btn = document.getElementById('copyLinkBtn');
+                const originalText = btn.textContent;
                 btn.textContent = '✅ Copied';
-                setTimeout(() => { btn.textContent = '🔗 Copy Link'; }, 2000);
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
             } catch (e) { alert('Copy failed'); }
         });
 
@@ -462,7 +534,7 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
-        // بارگذاری کانال اول
+        // شروع
         loadChannel(0);
     </script>
 </body>
