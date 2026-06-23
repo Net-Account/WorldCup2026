@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پخش زنده IPTV | DRM + HLS</title>
+    <!-- Shaka Player -->
+    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.0/dist/shaka-player.compiled.js"></script>
+    <!-- hls.js برای پشتیبانی بهتر از HLS -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0f1c;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #111827;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid #2d3748;
+        }
+        .header h1 { font-size: 1.8rem; color: #facc15; }
+        .container {
+            display: flex;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        .sidebar {
+            width: 320px;
+            background: #1a202c;
+            padding: 15px;
+            overflow-y: auto;
+            border-left: 1px solid #2d3748;
+            max-height: calc(100vh - 80px);
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .channel-list { list-style: none; }
+        .channel-list li {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            background: #2d3748;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .channel-list li:hover { background: #3b4a63; }
+        .channel-list li.active { background: #facc15; color: #1a202c; font-weight: bold; }
+        .player-area {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        video {
+            width: 100%;
+            max-width: 1000px;
+            max-height: 70vh;
+            background: #000;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .fullscreen-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: #facc15;
+            color: #1a202c;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .note {
+            color: #a0aec0;
+            margin-top: 15px;
+            font-size: 13px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 300px; border-left: none; border-bottom: 1px solid #2d3748; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📡 پخش زنده IPTV (DRM + HLS)</h1>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <input type="text" class="search-box" id="search" placeholder="🔍 جستجوی کانال...">
+            <ul class="channel-list" id="channelList"></ul>
+        </div>
+        <div class="player-area">
+            <video id="video" controls autoplay></video>
+            <button class="fullscreen-btn" onclick="document.getElementById('video').requestFullscreen()">📺 تمام‌صفحه</button>
+            <div class="note">⚠️ کانال‌های DRM ممکن است پس از مدتی از کار بیفتند. برای به‌روزرسانی کلیدها، فایل HTML را ویرایش کنید.</div>
+        </div>
+    </div>
+
+    <script>
+        // ========= لیست کانال‌ها (همان channels.json) =========
+        const channels = [
+          { id: 71, name: "CTV SPORTS - AQ", mpd: "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/72sjo8hygl/out/v1/3079be34d72a4985852d299a02406a0c/cenc.mpd", keyId: "d185684e2330de5bea436daa094a5e86", key: "014f0116154f5bf0050e03a6b0a23157" },
+          { id: 72, name: "CAZE TV - AQ [BR]", mpd: "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/3ynrpdanq2/out/v1/81fd4c26584044d2b1a1cc5b32fa9af0/cenc.mpd", keyId: "34475edab991ad5e92548aebd710410a", key: "501b209cccd323ac00bf5ac15b406cb4" },
+          { id: 73, name: "TSN ENGLISH - AQ", mpd: "https://otte-qw.live.pv-cdn.net/bom-nitro/live/clients/dash/enc/w0rehjjrwe/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd", keyId: "14eeabf30c14b7fbf3008c03099ce011", key: "17d2ac8dbc5429bd70af3433aa12158d" },
+          { id: 74, name: "RTE ENGLISH - AQ", mpd: "https://dai.google.com/linear/dash/event/antwa0EiQm2PoHtx4rBtVw/manifest.mpd", keyId: "d816287e21496989eae1312925a423c5", key: "00da00f13180e7e6cd5ce87d1c974e8d" },
+          { id: 75, name: "TSN SPORTS HD", hls: "https://soccerball.st/s1.php" },
+          { id: 76, name: "M6 FRANCE - AQ [No delay]", mpd: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd", keyId: "433ffba670963e70857859a9dff4be04", key: "51ede3a821229fe81e71282c8eff80e3" },
+          { id: 77, name: "D SPORTS - AQ [ES]", mpd: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/3gg2jnixjn/out/v1/e1840e01f3f14563b66bbb944d5cc54c/cenc.mpd", keyId: "f8b207c10f3f76aeba32a360ec52b9e4", key: "afad49d20eb39670e93e371c1d669921" },
+          { id: 78, name: "FOX SPORTS FHD", mpd: "https://otte-qw.live.pv-cdn.net/pdx-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd", keyId: "f6564ec2aee819046328a0e153be574d", key: "ff46a8a1031eb27ef22576a077c98ab7" },
+          { id: 79, name: "FOX SPORTS HD", hls: "https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8" },
+          { id: 80, name: "CANAL SPANISH", mpd: "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/ntkdl68eob/out/v1/bd5dfb7676994383881bc6e71877d29d/cenc.mpd", keyId: "d695093ea3e66d75a4d213a3e2cbf360", key: "01be3f645e89a067d2786c295f68dde4" },
+          { id: 81, name: "Binge+", hls: "https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8" }
+        ];
+
+        const video = document.getElementById('video');
+        const channelList = document.getElementById('channelList');
+        const searchInput = document.getElementById('search');
+        let currentPlayer = null;   // "shaka" or "hls"
+
+        // نابود کردن پلیر فعلی
+        function destroyPlayer() {
+            if (currentPlayer === 'shaka') {
+                video.src = '';
+                // shaka detach خودکار
+            } else if (currentPlayer === 'hls') {
+                if (window.hlsInstance) {
+                    window.hlsInstance.destroy();
+                    window.hlsInstance = null;
+                }
+            }
+            currentPlayer = null;
+        }
+
+        // پخش کانال
+        function playChannel(channel) {
+            destroyPlayer();
+
+            if (channel.hls) {
+                // HLS stream
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(channel.hls);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        video.play().catch(e => console.log("پخش خودکار نشد"));
+                    });
+                    window.hlsInstance = hls;
+                    currentPlayer = 'hls';
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = channel.hls;
+                    video.play();
+                    currentPlayer = 'hls';
+                }
+            } else if (channel.mpd) {
+                // DASH with ClearKey
+                if (!shaka.Player.isBrowserSupported()) {
+                    alert('مرورگر شما از Shaka Player پشتیبانی نمی‌کند.');
+                    return;
+                }
+                const player = new shaka.Player();
+                player.attach(video);
+
+                // تنظیم ClearKey اگر کلید وجود دارد
+                if (channel.keyId && channel.key) {
+                    player.configure({
+                        drm: {
+                            clearKeys: {
+                                [channel.keyId]: channel.key
+                            }
+                        }
+                    });
+                }
+
+                player.load(channel.mpd).then(() => {
+                    console.log('Shaka player loaded');
+                    video.play().catch(e => console.log("پخش خودکار نشد"));
+                }).catch(error => {
+                    console.error('Shaka error:', error);
+                    alert('خطا در پخش کانال: ' + error.message);
+                });
+
+                // ذخیره نمونه player برای نابود کردن بعدی
+                window.shakaPlayerInstance = player;
+                currentPlayer = 'shaka';
+            }
+        }
+
+        // نمایش لیست کانال‌ها با قابلیت جستجو
+        function renderChannels(filter = '') {
+            channelList.innerHTML = '';
+            const filtered = channels.filter(ch => ch.name.includes(filter));
+            filtered.forEach(ch => {
+                const li = document.createElement('li');
+                li.textContent = ch.name;
+                li.onclick = () => {
+                    document.querySelectorAll('.channel-list li').forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                    playChannel(ch);
+                };
+                channelList.appendChild(li);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => renderChannels(e.target.value));
+
+        // راه‌اندازی اولیه
+        renderChannels();
+        if (channels.length > 0) {
+            // پخش اولین کانال
+            playChannel(channels[0]);
+            channelList.firstChild?.classList.add('active');
+        }
+    </script>
+</body>
+</html>
