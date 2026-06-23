@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>World Cup 2026 - Channel Selector</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Shaka Player برای پخش DASH و HLS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.7/shaka-player.compiled.min.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -285,23 +288,83 @@
     <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <script>
+        // لیست کانال‌ها - ترکیبی از DASH و HLS
         const streams = [
-            { 
-                name: "📺 FS1 HD", 
-                url: "https://corsproxy.io/?http://190.11.225.124:5000/live/fs1_hd/playlist.m3u8" 
+            {
+                name: "🏆 CTV SPORTS",
+                type: "dash",
+                url: "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/72sjo8hygl/out/v1/3079be34d72a4985852d299a02406a0c/cenc.mpd",
+                keyId: "d185684e2330de5bea436daa094a5e86",
+                key: "014f0116154f5bf0050e03a6b0a23157"
             },
-            { 
-                name: "🏀 Test Stream (Mux)", 
-                url: "https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8" 
+            {
+                name: "🎥 CAZE TV",
+                type: "dash",
+                url: "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/3ynrpdanq2/out/v1/81fd4c26584044d2b1a1cc5b32fa9af0/cenc.mpd",
+                keyId: "34475edab991ad5e92548aebd710410a",
+                key: "501b209cccd323ac00bf5ac15b406cb4"
             },
-            { 
-                name: "🐰 Big Buck Bunny", 
-                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" 
+            {
+                name: "🏴 TSN ENGLISH",
+                type: "dash",
+                url: "https://otte-qw.live.pv-cdn.net/bom-nitro/live/clients/dash/enc/w0rehjjrwe/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd",
+                keyId: "14eeabf30c14b7fbf3008c03099ce011",
+                key: "17d2ac8dbc5429bd70af3433aa12158d"
+            },
+            {
+                name: "📺 RTE ENGLISH",
+                type: "dash",
+                url: "https://dai.google.com/linear/dash/event/antwa0EiQm2PoHtx4rBtVw/manifest.mpd",
+                keyId: "d816287e21496989eae1312925a423c5",
+                key: "00da00f13180e7e6cd5ce87d1c974e8d"
+            },
+            {
+                name: "⚽ TSN SPORTS HD",
+                type: "hls",
+                url: "https://soccerball.st/s1.php"
+            },
+            {
+                name: "🇫🇷 M6 FRANCE",
+                type: "dash",
+                url: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+                keyId: "433ffba670963e70857859a9dff4be04",
+                key: "51ede3a821229fe81e71282c8eff80e3"
+            },
+            {
+                name: "🇪🇸 D SPORTS",
+                type: "dash",
+                url: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/3gg2jnixjn/out/v1/e1840e01f3f14563b66bbb944d5cc54c/cenc.mpd",
+                keyId: "f8b207c10f3f76aeba32a360ec52b9e4",
+                key: "afad49d20eb39670e93e371c1d669921"
+            },
+            {
+                name: "🦊 FOX SPORTS FHD",
+                type: "dash",
+                url: "https://otte-qw.live.pv-cdn.net/pdx-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd",
+                keyId: "f6564ec2aee819046328a0e153be574d",
+                key: "ff46a8a1031eb27ef22576a077c98ab7"
+            },
+            {
+                name: "🦊 FOX SPORTS HD",
+                type: "hls",
+                url: "https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8"
+            },
+            {
+                name: "🇪🇸 CANAL SPANISH",
+                type: "dash",
+                url: "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/ntkdl68eob/out/v1/bd5dfb7676994383881bc6e71877d29d/cenc.mpd",
+                keyId: "d695093ea3e66d75a4d213a3e2cbf360",
+                key: "01be3f645e89a067d2786c295f68dde4"
+            },
+            {
+                name: "🎬 Binge+",
+                type: "hls",
+                url: "https://tc-sg.rockstreamer.com/v1/019ed91616121ea540a8171c8e801f/019ed92ac80315fc600b1796d4ad8b/main.m3u8"
             }
         ];
 
         let currentStreamIndex = 0;
-        let hls = null;
+        let player = null;
 
         const video = document.getElementById('video');
         const spinnerOverlay = document.getElementById('spinnerOverlay');
@@ -319,6 +382,7 @@
         const qualitySelector = document.getElementById('qualitySelector');
         const channelContainer = document.getElementById('channelButtons');
 
+        // ساخت دکمه‌های کانال
         streams.forEach((stream, idx) => {
             const btn = document.createElement('button');
             btn.className = `channel-btn ${idx === 0 ? 'active' : ''}`;
@@ -344,8 +408,11 @@
             loadChannel(currentStreamIndex);
         }
 
-        function loadChannel(index) {
-            if (hls) { hls.destroy(); hls = null; }
+        async function loadChannel(index) {
+            if (player) {
+                player.destroy();
+                player = null;
+            }
             video.src = '';
             video.removeAttribute('src');
             hideError();
@@ -356,19 +423,41 @@
             spinnerOverlay.classList.add('active');
             bigPlayBtn.classList.add('hidden');
 
-            if (Hls.isSupported()) {
-                hls = new Hls({
-                    liveSyncDurationCount: 3,
-                    liveMaxLatencyDurationCount: 10,
-                    enableWorker: true,
-                });
-                
-                hls.loadSource(streams[index].url);
-                hls.attachMedia(video);
+            const stream = streams[index];
 
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            // نصب Shaka Player
+            shaka.polyfill.installAll();
+
+            if (shaka.Player.isBrowserSupported()) {
+                player = new shaka.Player(video);
+
+                // تنظیم DRM برای DASH
+                if (stream.type === 'dash' && stream.keyId && stream.key) {
+                    const drmConfig = {
+                        servers: {
+                            'com.widevine.alpha': 'data:application/json;base64,' + btoa(JSON.stringify({
+                                keys: [{
+                                    kty: "oct",
+                                    kid: stream.keyId,
+                                    k: stream.key
+                                }]
+                            }))
+                        }
+                    };
+                    player.configure(drmConfig);
+                }
+
+                // مدیریت ارورها
+                player.addEventListener('error', (event) => {
+                    console.error('Shaka Player Error:', event.detail);
                     spinnerOverlay.classList.remove('active');
-                    populateQualityLevels(hls);
+                    showError(`Stream error: ${event.detail.code}`);
+                });
+
+                try {
+                    await player.load(stream.url);
+                    spinnerOverlay.classList.remove('active');
+                    populateQualityLevels();
                     
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
@@ -381,60 +470,46 @@
                             updatePlayButton();
                         });
                     }
-                });
-
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS Error:', data);
-                    if (data.fatal) {
-                        if (hls) hls.destroy();
-                        hls = null;
-                        spinnerOverlay.classList.remove('active');
-                        
-                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                            showError("Connection failed. Check internet or CORS settings.");
-                        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                            showError("Media format error. Trying to recover...");
-                            if (hls) hls.recoverMediaError();
-                        } else {
-                            showError("Stream is offline or unsupported.");
-                        }
-                    }
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = streams[index].url;
-                video.addEventListener('loadedmetadata', () => {
+                } catch (e) {
+                    console.error('Load error:', e);
                     spinnerOverlay.classList.remove('active');
-                    video.play().catch(() => {
-                        bigPlayBtn.classList.remove('hidden');
-                    });
-                    updatePlayButton();
-                }, { once: true });
-                
-                video.addEventListener('error', () => {
-                    showError("Failed to load native HLS.");
-                }, { once: true });
+                    showError('Failed to load stream.');
+                }
             } else {
-                showError("Your browser does not support HLS.");
+                showError('Browser not supported.');
             }
         }
 
-        function populateQualityLevels(hlsInstance) {
+        function populateQualityLevels() {
             qualitySelector.innerHTML = '<option value="-1">Auto</option>';
-            if (hlsInstance.levels.length) {
-                for (let i = hlsInstance.levels.length - 1; i >= 0; i--) {
-                    const lvl = hlsInstance.levels[i];
-                    const label = lvl.height ? `${lvl.height}p` : `Level ${i+1}`;
-                    qualitySelector.innerHTML += `<option value="${i}">${label}</option>`;
-                }
+            if (player) {
+                const tracks = player.getVariantTracks();
+                const uniqueHeights = [...new Set(tracks.map(t => t.height))].sort((a, b) => b - a);
+                
+                uniqueHeights.forEach(height => {
+                    if (height) {
+                        qualitySelector.innerHTML += `<option value="${height}">${height}p</option>`;
+                    }
+                });
             }
         }
 
         qualitySelector.addEventListener('change', () => {
-            if (hls) hls.currentLevel = parseInt(qualitySelector.value);
+            if (player) {
+                const value = qualitySelector.value;
+                if (value === '-1') {
+                    player.configure({ abr: { enabled: true } });
+                } else {
+                    player.configure({ abr: { enabled: false } });
+                    player.selectVariantTrack(
+                        player.getVariantTracks().find(t => t.height === parseInt(value))
+                    );
+                }
+            }
         });
 
         function togglePlay() {
-            if (!video.src && !hls) { loadChannel(currentStreamIndex); return; }
+            if (!video.src && !player) { loadChannel(currentStreamIndex); return; }
             if (video.paused) {
                 video.play().catch(() => {});
             } else {
@@ -529,6 +604,7 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
+        // شروع
         loadChannel(0);
     </script>
 </body>
