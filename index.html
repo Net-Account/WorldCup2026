@@ -204,7 +204,7 @@
             .header-top {
                 position: relative;
                 justify-content: space-between;
-                height: 36px; /* ارتفاع ثابت برای تراز عمودی */
+                height: 36px;
             }
             .copy-link-btn, .telegram-btn {
                 padding: 2px 8px;
@@ -218,7 +218,7 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                width: 34px;   /* بزرگ‌تر از 28px قبلی */
+                width: 34px;
                 height: 34px;
             }
             .big-play-btn { width: 64px; height: 64px; }
@@ -364,13 +364,15 @@
         function populateQualityLevels(hlsInstance) {
             qualitySelector.innerHTML = '<option value="-1">Auto</option>';
             const levels = hlsInstance.levels;
-            levels.forEach((level, i) => {
+            // نمایش از بیشترین کیفیت به کمترین
+            for (let i = levels.length - 1; i >= 0; i--) {
+                const level = levels[i];
                 const label = level.height ? `${level.height}p` : `Quality ${i+1}`;
                 const option = document.createElement('option');
-                option.value = i;
+                option.value = i;  // اندیس واقعی سطح کیفیت
                 option.textContent = label;
                 qualitySelector.appendChild(option);
-            });
+            }
             qualitySelector.value = hlsInstance.currentLevel;
         }
 
