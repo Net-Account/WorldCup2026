@@ -218,8 +218,9 @@
             spinnerOverlay.classList.add('active');
             isPlaying = true;
 
-            // mute for autoplay compliance
-            video.muted = true;
+            // باکلیک کاربر پخش می‌شود – نیازی به میوت نیست
+            video.muted = false;
+            video.volume = volumeSlider.value;
             updateVolumeUI();
 
             if (Hls.isSupported()) {
@@ -248,7 +249,6 @@
 
         function togglePlay() {
             if (!video.src) {
-                // if no source loaded yet, start it
                 playChannel();
                 return;
             }
