@@ -43,6 +43,7 @@
             border-radius: 28px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative;
         }
         video {
             width: 100%;
@@ -51,6 +52,20 @@
             background: #000;
             object-fit: contain;
         }
+        .poster {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.9);
+            color: #aaa;
+            font-size: 1.2rem;
+            z-index: 5;
+            pointer-events: none; /* تا کلیک‌های روی ویدیو کار کنند */
+        }
+        .poster.hide { display: none; }
         .controls {
             display: flex;
             align-items: center;
@@ -112,6 +127,10 @@
         </div>
         <div class="player-card">
             <video id="video" playsinline></video>
+            <!-- لایه پیام انتخاب کانال -->
+            <div class="poster" id="poster">
+                <span>📺 برای شروع، یک شبکه را انتخاب کنید</span>
+            </div>
             <div class="controls">
                 <button id="playPauseBtn" title="پخش / توقف">▶️</button>
                 <div class="progress-bar" id="progressBar">
@@ -141,9 +160,7 @@
     <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <script>
-        // ★ پروکسی رایگان CORS ★
         const CORS_PROXY = 'https://corsproxy.io/?url=';
-
         const channels = [
             { name: 'TSN SPORTS HD', url: CORS_PROXY + encodeURIComponent('https://soccerball.st/s1.php') },
             { name: 'FOX SPORTS HD', url: CORS_PROXY + encodeURIComponent('https://edgestreams.pro/hls/24SDAZFcsqnj24.m3u8') },
@@ -151,6 +168,7 @@
         ];
 
         const video = document.getElementById('video');
+        const poster = document.getElementById('poster');
         const spinnerOverlay = document.getElementById('spinnerOverlay');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const muteBtn = document.getElementById('muteBtn');
@@ -170,6 +188,8 @@
             video.src = '';
             video.removeAttribute('src');
 
+            // مخفی کردن poster
+            poster.classList.add('hide');
             spinnerOverlay.classList.add('active');
             currentIndex = index;
             updateActiveCard();
@@ -195,6 +215,7 @@
             } else {
                 alert('مرورگر شما از پخش HLS پشتیبانی نمی‌کند.');
                 spinnerOverlay.classList.remove('active');
+                poster.classList.remove('hide'); // اگر خطا خورد، poster را برگردان
             }
         }
 
@@ -224,7 +245,7 @@
         });
 
         playPauseBtn.addEventListener('click', () => {
-            video.paused ? video.play() : video.pause();
+            if (video.src) video.paused ? video.play() : video.pause();
         });
 
         muteBtn.addEventListener('click', () => {
@@ -261,7 +282,8 @@
             });
         });
 
-        playChannel(0);
+        // هیچ پخش خودکاری انجام نمی‌شود
+        // poster به صورت پیش‌فرض نمایش داده می‌شود
     </script>
 </body>
 </html>
