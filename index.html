@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>World Cup 2026 Live</title>
+    <title>World Cup 2026 - Channel Selector</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -104,6 +104,7 @@
         }
         .copy-link-btn:hover, .telegram-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
         .telegram-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
         .player-card {
             background: rgba(10, 10, 15, 0.85);
             border: 1px solid rgba(255,255,255,0.08);
@@ -155,7 +156,10 @@
         }
         .quality-selector option { background: #1a1a2e; color: #fff; }
 
-        .channel-card {
+        .channel-strip {
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+        }
+        .channel-btn {
             background: rgba(20, 20, 25, 0.8);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -163,27 +167,19 @@
             padding: 10px 18px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            align-self: center;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            white-space: nowrap;
         }
-        .channel-card:hover { transform: translateY(-3px); border-color: #c471ed; box-shadow: 0 15px 30px rgba(196,113,237,0.25); }
-        .channel-card.active {
+        .channel-btn:hover { transform: translateY(-3px); border-color: #c471ed; box-shadow: 0 15px 30px rgba(196,113,237,0.25); }
+        .channel-btn.active {
             background: linear-gradient(135deg, #c471ed, #f7797d);
             border-color: transparent;
+            color: #000;
             box-shadow: 0 10px 25px rgba(247,121,125,0.5);
         }
-        .channel-card .channel-name { color: #000; }
-        .channel-icon {
-            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
-        }
-        .channel-icon img {
-            width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-        }
-        .channel-name { font-size: 0.9rem; font-weight: 500; }
         .spinner-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
@@ -197,36 +193,17 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 600px) {
-            body {
-                padding-top: 8px;
-            }
+            body { padding-top: 8px; }
             .header h1 { font-size: 1.6rem; }
-            .header-top {
-                position: relative;
-                justify-content: space-between;
-                height: 36px;
-            }
-            .copy-link-btn, .telegram-btn {
-                padding: 2px 8px;
-                font-size: 0.65rem;
-                gap: 3px;
-                line-height: 1;
-            }
+            .header-top { position: relative; justify-content: space-between; height: 36px; }
+            .copy-link-btn, .telegram-btn { padding: 2px 8px; font-size: 0.65rem; gap: 3px; line-height: 1; }
             .telegram-btn svg { width: 12px; height: 12px; }
-            .lion-sun {
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                width: 34px;
-                height: 34px;
-            }
+            .lion-sun { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 34px; height: 34px; }
             .big-play-btn { width: 64px; height: 64px; }
             .big-play-btn svg { width: 28px; height: 28px; }
             .controls { gap: 8px; padding: 10px 15px; }
             .volume-slider { width: 60px; }
-            .channel-card { padding: 8px 15px; }
-            .channel-icon { width: 25px; height: 25px; }
+            .channel-btn { padding: 8px 15px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -239,11 +216,9 @@
                     <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
                     Telegram Channel
                 </a>
-
                 <div class="lion-sun">
                     <img src="https://i.ibb.co/xSc82hzp/Lion-and-Sun-svg.png" alt="Lion and Sun">
                 </div>
-
                 <button class="copy-link-btn" id="copyLinkBtn" title="Copy Link">🔗 Copy Link</button>
             </div>
             <h1>World Cup 2026 <span class="live-text">Live</span></h1>
@@ -251,7 +226,7 @@
 
         <div class="player-card">
             <video id="video" playsinline></video>
-            <div class="big-play-btn" id="bigPlayBtn" title="پخش">
+            <div class="big-play-btn" id="bigPlayBtn">
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
             <div class="controls">
@@ -280,52 +255,61 @@
             </div>
         </div>
 
-        <div class="channel-card active" id="tsnCard">
-            <div class="channel-icon">
-                <img src="https://assets.streamlinehq.com/image/private/w_512,h_512,ar_1/f_auto/v1/icons/3/soccer-ball-arlfm1ey8ds0so6lqlkbjw.png/soccer-ball-02dbbkh1w4nbkqbunc82ek9.png?_a=DATAiZiuZAA0" alt="Soccer Ball">
-            </div>
-            <span class="channel-name">TSN SPORTS HD</span>
-        </div>
+        <div class="channel-strip" id="channelButtons"></div>
     </div>
     <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <script>
-        // ==================== CORS PROXY & CHANNEL ====================
-        const CORS_PROXY = 'https://corsproxy.io/?url=';
-        const channel = {
-            name: 'TSN SPORTS HD',
-            url: CORS_PROXY + encodeURIComponent('https://soccerball.st/s1.php')
-        };
+        // لیست کانال‌ها
+        const streams = [
+            { name: "🇺🇸 FOX",       url: "https://streamxyz.shop/FOX/index.m3u8" },
+            { name: "🇺🇸 FOX 4K",    url: "https://streamxyz.shop/fox4k/index.m3u8" },
+            { name: "🇬🇧 ITV",       url: "https://streamxyz.shop/ITV/index.m3u8" },
+            { name: "🇨🇦 TSN",       url: "https://streamxyz.shop/tsn1/index.m3u8" },
+            { name: "🇨🇦 TSN 4K",    url: "https://streamxyz.shop/tsn4k/index.m3u8" },
+            { name: "⚽ beIN Max",   url: "https://streamxyz.shop/bein/index.m3u8" },
+            { name: "⚽ beIN 4K",    url: "https://streamxyz.shop/bein4k/index.m3u8" },
+            { name: "🇺🇸 Telemundo", url: "https://streamxyz.shop/Telemundo/index.m3u8" },
+            { name: "🇺🇸 Tele 4K",   url: "https://streamxyz.shop/tele4k/index.m3u8" }
+        ];
 
-        // ==================== DOM ELEMENTS ====================
+        let currentStreamIndex = 0;
+        let hls = null;
+        let isPlaying = false;
+
         const video = document.getElementById('video');
         const spinnerOverlay = document.getElementById('spinnerOverlay');
-        const playPauseBtn = document.getElementById('playPauseBtn');
+        const bigPlayBtn = document.getElementById('bigPlayBtn');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
-        const muteBtn = document.getElementById('muteBtn');
         const volumeOnIcon = document.getElementById('volumeOnIcon');
         const volumeOffIcon = document.getElementById('volumeOffIcon');
         const volumeSlider = document.getElementById('volumeSlider');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const timeDisplay = document.getElementById('timeDisplay');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const tsnCard = document.getElementById('tsnCard');
-        const bigPlayBtn = document.getElementById('bigPlayBtn');
-        const pipBtn = document.getElementById('pipBtn');
-        const copyLinkBtn = document.getElementById('copyLinkBtn');
         const qualitySelector = document.getElementById('qualitySelector');
+        const channelContainer = document.getElementById('channelButtons');
 
-        let hls = null;
-        let isPlaying = false;
+        // ساخت دکمه‌های کانال
+        streams.forEach((stream, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `channel-btn ${idx === 0 ? 'active' : ''}`;
+            btn.textContent = stream.name;
+            btn.addEventListener('click', () => loadChannel(idx));
+            channelContainer.appendChild(btn);
+        });
 
-        // ==================== پخش ====================
-        function playChannel() {
-            if (isPlaying) return;
+        const channelButtons = document.querySelectorAll('.channel-btn');
+
+        function loadChannel(index) {
+            if (isPlaying && currentStreamIndex === index) return; // همون کانال
             if (hls) { hls.destroy(); hls = null; }
             video.src = '';
             video.removeAttribute('src');
+
+            currentStreamIndex = index;
+            channelButtons.forEach((btn, i) => btn.classList.toggle('active', i === index));
 
             spinnerOverlay.classList.add('active');
             isPlaying = true;
@@ -335,46 +319,33 @@
             updateVolumeUI();
 
             if (Hls.isSupported()) {
-                const hlsInstance = new Hls({
-                    // تنظیمات کلیدی برای پخش زنده
-                    liveSyncDurationCount: 2,   // نزدیک‌ترین همگام‌سازی با لبه‌ی زنده
+                hls = new Hls({
+                    liveSyncDurationCount: 2,
                     liveMaxLatencyDurationCount: 8,
-                    startPosition: -1           // شروع از انتهای لیست پخش (نقطه‌ی زنده)
+                    startPosition: -1
                 });
+                hls.loadSource(streams[index].url);
+                hls.attachMedia(video);
 
-                hlsInstance.loadSource(channel.url);
-                hlsInstance.attachMedia(video);
-
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     spinnerOverlay.classList.remove('active');
-
-                    // اطمینان از اینکه پخش از نقطه‌ی زنده شروع شود
-                    if (hlsInstance.levels.length && hlsInstance.levels[0].details?.live) {
-                        const livePos = hlsInstance.liveSyncPosition;
-                        if (livePos !== undefined && !isNaN(livePos)) {
-                            video.currentTime = livePos;
-                        }
-                    }
-
                     video.play().catch(() => {});
                     updatePlayButton();
                     bigPlayBtn.classList.add('hidden');
-                    populateQualityLevels(hlsInstance);
+                    populateQualityLevels(hls);
                 });
 
-                // هنگام تغییر سطح، همگام‌سازی زنده حفظ شود
-                hlsInstance.on(Hls.Events.LEVEL_SWITCHED, () => {
-                    if (hlsInstance.levels.length && hlsInstance.levels[hlsInstance.currentLevel]?.details?.live) {
-                        const livePos = hlsInstance.liveSyncPosition;
-                        if (livePos !== undefined && !isNaN(livePos)) {
-                            video.currentTime = livePos;
-                        }
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        console.error('HLS fatal error', data);
+                        hls.destroy();
+                        hls = null;
+                        spinnerOverlay.classList.remove('active');
+                        isPlaying = false;
                     }
                 });
-
-                hls = hlsInstance;
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = channel.url;
+                video.src = streams[index].url;
                 video.addEventListener('loadedmetadata', () => {
                     spinnerOverlay.classList.remove('active');
                     video.play().catch(() => {});
@@ -382,7 +353,7 @@
                     bigPlayBtn.classList.add('hidden');
                 }, { once: true });
             } else {
-                alert('Your browser does not support HLS playback.');
+                alert('مرورگر شما پخش HLS را پشتیبانی نمی‌کند.');
                 spinnerOverlay.classList.remove('active');
                 isPlaying = false;
             }
@@ -390,42 +361,33 @@
 
         function populateQualityLevels(hlsInstance) {
             qualitySelector.innerHTML = '<option value="-1">Auto</option>';
-            const levels = hlsInstance.levels;
-            for (let i = levels.length - 1; i >= 0; i--) {
-                const level = levels[i];
-                const label = level.height ? `${level.height}p` : `Quality ${i+1}`;
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = label;
-                qualitySelector.appendChild(option);
+            if (hlsInstance.levels.length) {
+                for (let i = hlsInstance.levels.length - 1; i >= 0; i--) {
+                    const lvl = hlsInstance.levels[i];
+                    const label = lvl.height ? `${lvl.height}p` : `Quality ${i+1}`;
+                    qualitySelector.innerHTML += `<option value="${i}">${label}</option>`;
+                }
             }
             qualitySelector.value = hlsInstance.currentLevel;
         }
 
         qualitySelector.addEventListener('change', () => {
-            if (!hls) return;
-            const newLevel = parseInt(qualitySelector.value);
-            hls.currentLevel = newLevel;
+            if (hls) hls.currentLevel = parseInt(qualitySelector.value);
         });
 
-        // ==================== پخش/توقف ====================
         function togglePlay() {
-            if (!video.src) { playChannel(); return; }
-            if (video.paused) { video.play(); } else { video.pause(); }
+            if (!video.src) { loadChannel(currentStreamIndex); return; }
+            video.paused ? video.play() : video.pause();
             updatePlayButton();
         }
 
         function updatePlayButton() {
-            if (video.paused) {
-                playIcon.style.display = '';
-                pauseIcon.style.display = 'none';
-                bigPlayBtn.classList.remove('hidden');
-            } else {
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = '';
-                bigPlayBtn.classList.add('hidden');
-            }
+            const paused = video.paused;
+            playIcon.style.display = paused ? '' : 'none';
+            pauseIcon.style.display = paused ? 'none' : '';
+            bigPlayBtn.classList.toggle('hidden', !paused);
         }
+
         video.addEventListener('play', updatePlayButton);
         video.addEventListener('pause', updatePlayButton);
         video.addEventListener('ended', () => {
@@ -448,23 +410,21 @@
             video.currentTime = pct * video.duration;
         });
 
-        playPauseBtn.addEventListener('click', togglePlay);
-        video.addEventListener('click', togglePlay);
-        bigPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-
-        // ==================== صدا ====================
         function updateVolumeUI() {
-            if (video.muted || video.volume === 0) {
-                volumeOnIcon.style.display = 'none';
-                volumeOffIcon.style.display = '';
-            } else {
-                volumeOnIcon.style.display = '';
-                volumeOffIcon.style.display = 'none';
-            }
+            const muted = video.muted || video.volume === 0;
+            volumeOnIcon.style.display = muted ? 'none' : '';
+            volumeOffIcon.style.display = muted ? '' : 'none';
             volumeSlider.value = video.muted ? 0 : video.volume;
         }
 
-        muteBtn.addEventListener('click', () => { video.muted = !video.muted; updateVolumeUI(); });
+        document.getElementById('playPauseBtn').addEventListener('click', togglePlay);
+        video.addEventListener('click', togglePlay);
+        bigPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+
+        document.getElementById('muteBtn').addEventListener('click', () => {
+            video.muted = !video.muted;
+            updateVolumeUI();
+        });
         volumeSlider.addEventListener('input', () => {
             video.volume = volumeSlider.value;
             video.muted = (volumeSlider.value == 0);
@@ -472,47 +432,28 @@
         });
         video.addEventListener('volumechange', updateVolumeUI);
 
-        // ==================== تمام‌صفحه و PiP ====================
-        fullscreenBtn.addEventListener('click', () => {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            } else {
-                document.querySelector('.player-card').requestFullscreen();
-            }
+        document.getElementById('fullscreenBtn').addEventListener('click', () => {
+            document.fullscreenElement
+                ? document.exitFullscreen()
+                : document.querySelector('.player-card').requestFullscreen();
         });
 
-        pipBtn.addEventListener('click', async () => {
+        document.getElementById('pipBtn').addEventListener('click', async () => {
             try {
-                if (document.pictureInPictureElement) {
+                if (document.pictureInPictureElement)
                     await document.exitPictureInPicture();
-                } else if (document.pictureInPictureEnabled) {
+                else if (document.pictureInPictureEnabled)
                     await video.requestPictureInPicture();
-                }
-            } catch (e) { console.error('PiP failed:', e); }
+            } catch (e) { console.error('PiP failed', e); }
         });
 
-        // ==================== کپی لینک ====================
-        copyLinkBtn.addEventListener('click', async () => {
+        document.getElementById('copyLinkBtn').addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(window.location.href);
-                const originalText = copyLinkBtn.textContent;
-                copyLinkBtn.textContent = '✅ Copied';
-                setTimeout(() => { copyLinkBtn.textContent = '🔗 Copy Link'; }, 2000);
+                const btn = document.getElementById('copyLinkBtn');
+                btn.textContent = '✅ Copied';
+                setTimeout(() => { btn.textContent = '🔗 Copy Link'; }, 2000);
             } catch (e) { alert('Copy failed'); }
-        });
-
-        // ==================== کلیدهای میانبر ====================
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
-            switch (e.key) {
-                case ' ': case 'Spacebar': e.preventDefault(); togglePlay(); break;
-                case 'ArrowUp': e.preventDefault(); video.volume = Math.min(1, video.volume + 0.1); updateVolumeUI(); break;
-                case 'ArrowDown': e.preventDefault(); video.volume = Math.max(0, video.volume - 0.1); updateVolumeUI(); break;
-                case 'ArrowLeft': e.preventDefault(); video.currentTime = Math.max(0, video.currentTime - 5); break;
-                case 'ArrowRight': e.preventDefault(); video.currentTime = Math.min(video.duration || 0, video.currentTime + 5); break;
-                case 'm': case 'M': e.preventDefault(); video.muted = !video.muted; updateVolumeUI(); break;
-                case 'f': case 'F': e.preventDefault(); document.fullscreenElement ? document.exitFullscreen() : document.querySelector('.player-card').requestFullscreen(); break;
-            }
         });
 
         function formatTime(sec) {
@@ -521,7 +462,8 @@
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
-        tsnCard.addEventListener('click', () => { if (!isPlaying) playChannel(); });
+        // بارگذاری کانال اول
+        loadChannel(0);
     </script>
 </body>
 </html>
