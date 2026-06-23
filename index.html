@@ -70,21 +70,39 @@
             width: 100%; max-width: 900px;
             display: flex; flex-direction: column; gap: 25px;
         }
-        .header { text-align: center; position: relative; }
+        .header {
+            text-align: center;
+            position: relative;
+        }
         .header h1 {
             font-size: 2.2rem; font-weight: 700;
             background: linear-gradient(to right, #c471ed, #f7797d);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
         .header h1 .live-text {
             color: #ff4d4d;
             text-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
-            margin-left: 4px; font-weight: 700;
+            font-weight: 700;
             -webkit-text-fill-color: #ff4d4d;
             background: none;
         }
-        .header p { color: #aaa; font-size: 1.1rem; letter-spacing: 0.15em; }
+        .lion-sun {
+            display: inline-block;
+            margin-bottom: 8px;
+            width: 60px;
+            height: 60px;
+        }
+        .lion-sun img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 6px rgba(224, 176, 14, 0.5));
+        }
         .copy-link-btn {
             position: absolute;
             right: 0;
@@ -101,6 +119,27 @@
             backdrop-filter: blur(5px);
         }
         .copy-link-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .telegram-btn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #aaa;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            font-family: inherit;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .telegram-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .telegram-btn svg { width: 18px; height: 18px; fill: currentColor; }
         .player-card {
             background: rgba(10, 10, 15, 0.85);
             backdrop-filter: blur(20px);
@@ -111,7 +150,6 @@
             position: relative;
         }
         video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; object-fit: contain; cursor: pointer; }
-        /* دکمه پخش بزرگ وسط ویدیو */
         .big-play-btn {
             position: absolute;
             top: 50%; left: 50%;
@@ -132,7 +170,7 @@
         .big-play-btn svg {
             width: 36px; height: 36px;
             fill: #fff;
-            margin-left: 4px; /* جبران آفست مثلث */
+            margin-left: 4px;
         }
         .controls {
             display: flex; align-items: center; gap: 12px; padding: 12px 20px;
@@ -188,6 +226,7 @@
             .channel-card { padding: 20px 30px; }
             .big-play-btn { width: 60px; height: 60px; }
             .big-play-btn svg { width: 28px; height: 28px; }
+            .lion-sun { width: 48px; height: 48px; }
         }
     </style>
 </head>
@@ -195,13 +234,21 @@
     <div class="bg-animated"><div class="shape-1"></div></div>
     <div class="container">
         <div class="header">
+            <a href="https://t.me/NetAccount" target="_blank" class="telegram-btn" title="کانال تلگرام">
+                <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                کانال تلگرام
+            </a>
+
+            <button class="copy-link-btn" id="copyLinkBtn" title="لینک لایو">🔗 لینک لایو</button>
+
+            <div class="lion-sun">
+                <img src="https://i.ibb.co/xSc82hzp/Lion-and-Sun-svg.png" alt="Lion and Sun">
+            </div>
+
             <h1>World Cup 2026 <span class="live-text">Live</span></h1>
-            <p>@NetAccount</p>
-            <button class="copy-link-btn" id="copyLinkBtn" title="کپی لینک">🔗 کپی لینک</button>
         </div>
         <div class="player-card">
             <video id="video" playsinline></video>
-            <!-- دکمه بزرگ پخش -->
             <div class="big-play-btn" id="bigPlayBtn" title="پخش">
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
@@ -219,7 +266,6 @@
                     <svg id="volumeOffIcon" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
                 </button>
                 <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
-                <!-- دکمه PiP -->
                 <button id="pipBtn" title="تصویر در تصویر">
                     <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
                 </button>
@@ -387,7 +433,6 @@
             }
         });
 
-        // PiP
         pipBtn.addEventListener('click', async () => {
             try {
                 if (document.pictureInPictureElement) {
@@ -400,21 +445,18 @@
             }
         });
 
-        // کپی لینک
         copyLinkBtn.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 const originalText = copyLinkBtn.textContent;
                 copyLinkBtn.textContent = '✅ کپی شد';
-                setTimeout(() => { copyLinkBtn.textContent = originalText; }, 2000);
+                setTimeout(() => { copyLinkBtn.textContent = '🔗 لینک لایو'; }, 2000);
             } catch (e) {
                 alert('کپی لینک ناموفق بود');
             }
         });
 
-        // کلیدهای میانبر کیبورد
         document.addEventListener('keydown', (e) => {
-            // اگر کاربر در حال تایپ در یک فیلد ورودی است، میانبرها را غیرفعال کن
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
 
             switch (e.key) {
